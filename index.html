@@ -3334,22 +3334,47 @@
     </div>
 
     <script>
-        // API Configuration
-        const API_BASE_URL = 'http://localhost:5000/api';
+        // ==================== إعدادات المزامنة عبر Firebase ====================
+        // بيانات القضايا بتتخزن في قاعدة بيانات Firebase Realtime Database
+        // تحت المسار caseData، وده بيسمح بمزامنة حقيقية بين اللاب توب والموبايل
+        // من أي مكان عبر الإنترنت (مش بس نفس الواي فاي).
+        const FIREBASE_DB_BASE = 'https://case-manager-32abd-default-rtdb.firebaseio.com';
+        const FIREBASE_DATA_PATH = 'caseData';
+        // ملحوظة: مفتاح الـ apiKey هنا خاص بإعدادات مشروع Firebase على الويب
+        // وليس سرًّا حساسًا (هذا طبيعي في تطبيقات Firebase من جهة العميل)، لكن
+        // الحماية الفعلية للبيانات بتتحدد من "Rules" قاعدة البيانات في لوحة تحكم Firebase.
+        const API_BASE_URL = `${FIREBASE_DB_BASE}/${FIREBASE_DATA_PATH}`;
 
-        // دوال API
+        // دوال API — بتتكلم مع Firebase Realtime Database عن طريق REST مباشرة
+        // (GET لجلب البيانات، PUT للكتابة/الاستبدال الكامل لنفس المسار)
         async function apiRequest(endpoint, options = {}) {
             try {
-                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                const method = (options.method || 'GET').toUpperCase();
+                // Firebase REST يتطلب لاحقة .json على المسار
+                const url = `${API_BASE_URL}.json`;
+
+                const response = await fetch(url, {
+                    // أي حفظ (كان في الأصل POST) لازم يبقى PUT عشان يستبدل نفس
+                    // المسار بدل ما ينشئ عنصر جديد بمعرّف عشوائي.
+                    method: method === 'POST' ? 'PUT' : method,
                     headers: {
                         'Content-Type': 'application/json',
                         ...options.headers
                     },
-                    ...options
+                    body: options.body
                 });
-                return await response.json();
+
+                if (!response.ok) throw new Error(`Firebase HTTP ${response.status}`);
+                const json = await response.json();
+
+                if (method === 'POST') {
+                    // Firebase بترجع نفس الجسم المكتوب عند نجاح الـ PUT
+                    return { success: true };
+                }
+                // لو قاعدة البيانات فاضية، Firebase بترجع null
+                return json;
             } catch (error) {
-                console.error('API Error:', error);
+                console.error('Firebase API Error:', error);
                 // Fallback to localStorage if API fails
                 return null;
             }
@@ -3434,6 +3459,48 @@
                 suspendedCases = JSON.parse(localStorage.getItem('suspendedCases')) || [];
                 archivedCases = JSON.parse(localStorage.getItem('archivedCases')) || [];
                 notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+            }
+
+            // ========== استيراد النسخة الاحتياطية المرفقة (مرة واحدة فقط) ==========
+            // إذا لم توجد أي بيانات محفوظة بعد على هذا الجهاز، يتم تحميلها تلقائيًا
+            // من ملف النسخة الاحتياطية backup-seed.json المرفق مع التطبيق.
+            const hasAnyData = (
+                (cases && cases.length) || (favorableJudgments && favorableJudgments.length) ||
+                (againstJudgments && againstJudgments.length) || (reservedCases && reservedCases.length) ||
+                (cancelledCases && cancelledCases.length) || (suspendedCases && suspendedCases.length) ||
+                (archivedCases && archivedCases.length) || (notifications && notifications.length)
+            );
+            const seedAlreadyTried = localStorage.getItem('seedImportAttempted') === 'true';
+
+            if (!hasAnyData && !seedAlreadyTried) {
+                try {
+                    const seedResp = await fetch('./backup-seed.json');
+                    if (seedResp.ok) {
+                        const seed = await seedResp.json();
+                        cases = seed.cases || [];
+                        favorableJudgments = seed.favorableJudgments || [];
+                        againstJudgments = seed.againstJudgments || [];
+                        reservedCases = seed.reservedCases || [];
+                        cancelledCases = seed.cancelledCases || [];
+                        suspendedCases = seed.suspendedCases || [];
+                        archivedCases = seed.archivedCases || [];
+                        notifications = seed.notifications || [];
+
+                        localStorage.setItem('cases', JSON.stringify(cases));
+                        localStorage.setItem('favorableJudgments', JSON.stringify(favorableJudgments));
+                        localStorage.setItem('againstJudgments', JSON.stringify(againstJudgments));
+                        localStorage.setItem('reservedCases', JSON.stringify(reservedCases));
+                        localStorage.setItem('cancelledCases', JSON.stringify(cancelledCases));
+                        localStorage.setItem('suspendedCases', JSON.stringify(suspendedCases));
+                        localStorage.setItem('archivedCases', JSON.stringify(archivedCases));
+                        localStorage.setItem('notifications', JSON.stringify(notifications));
+                        console.log('تم استيراد بيانات النسخة الاحتياطية المرفقة بنجاح');
+                    }
+                } catch (e) {
+                    console.warn('تعذر استيراد النسخة الاحتياطية المرفقة', e);
+                } finally {
+                    localStorage.setItem('seedImportAttempted', 'true');
+                }
             }
         }
 
@@ -10587,6 +10654,71 @@
             showAlert('تم مسح معايير البحث في القضايا المؤرشفة', 'info');
         });
         
+        // ========== إعادة رسم كل الشاشات بعد أي تحديث للبيانات ==========
+        function refreshAllViews() {
+            try {
+                renderCasesTable();
+                renderJudgmentsTables();
+                renderReservedAndCancelledCases();
+                renderArchivedCasesTable();
+                updateStats();
+                updateDashboard();
+            } catch (e) {
+                console.warn('refreshAllViews failed', e);
+            }
+        }
+
+        // ========== المزامنة التلقائية بين الأجهزة (عند تشغيل السيرفر المحلي) ==========
+        // كل عدة ثوانٍ، وأيضًا عند رجوع المستخدم لتبويب/تطبيق الموبايل، نعيد تحميل
+        // البيانات من نفس السيرفر حتى تظهر أي إضافة تمت من جهاز آخر على نفس الشبكة.
+        let __syncInProgress = false;
+        async function syncFromServer() {
+            if (__syncInProgress || window.__savingToAPI) return;
+            __syncInProgress = true;
+            try {
+                const remote = await apiRequest('/data');
+                if (remote) {
+                    const remoteTS = Number(remote.lastSavedAt || 0);
+                    const localTS = Number(localStorage.getItem('lastSavedAt') || '0');
+                    // حدّث الواجهة فقط لو في بيانات أحدث من السيرفر
+                    if (remoteTS && remoteTS > localTS) {
+                        cases = remote.cases || [];
+                        favorableJudgments = remote.favorableJudgments || [];
+                        againstJudgments = remote.againstJudgments || [];
+                        reservedCases = remote.reservedCases || [];
+                        cancelledCases = remote.cancelledCases || [];
+                        suspendedCases = remote.suspendedCases || [];
+                        archivedCases = remote.archivedCases || [];
+                        notifications = remote.notifications || [];
+
+                        localStorage.setItem('cases', JSON.stringify(cases));
+                        localStorage.setItem('favorableJudgments', JSON.stringify(favorableJudgments));
+                        localStorage.setItem('againstJudgments', JSON.stringify(againstJudgments));
+                        localStorage.setItem('reservedCases', JSON.stringify(reservedCases));
+                        localStorage.setItem('cancelledCases', JSON.stringify(cancelledCases));
+                        localStorage.setItem('suspendedCases', JSON.stringify(suspendedCases));
+                        localStorage.setItem('archivedCases', JSON.stringify(archivedCases));
+                        localStorage.setItem('notifications', JSON.stringify(notifications));
+                        localStorage.setItem('lastSavedAt', String(remoteTS));
+
+                        refreshAllViews();
+                    }
+                }
+            } catch (e) {
+                // السيرفر مش شغال أو مفيش واي فاي مشترك - نتجاهل بهدوء ونحاول تاني بعدين
+            } finally {
+                __syncInProgress = false;
+            }
+        }
+
+        // كل 8 ثوانٍ أثناء فتح التطبيق
+        setInterval(syncFromServer, 8000);
+        // وكمان فورًا لما يرجع المستخدم للتطبيق (مفيد جدًا على الموبايل)
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') syncFromServer();
+        });
+        window.addEventListener('focus', syncFromServer);
+
         // ========== التهيئة الأولية ==========
         document.addEventListener('DOMContentLoaded', async () => {
             // تحميل البيانات من API أو localStorage
