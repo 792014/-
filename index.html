@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>نظام إدارة القضايا - هيئة قضايا الدولة</title>
+    <meta name="viewport" id="viewport-meta" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>نظام إدارة القضايا - المستشار محمود العوابدي</title>
 
     <!-- PWA: manifest + theme + icons -->
     <link rel="manifest" href="manifest.json">
@@ -71,6 +71,7 @@
                     'fa-whatsapp': '💬',
                     'fa-code': '💻',
                     'fa-balance-scale': '⚖️',
+                    'fa-scale-balanced': '⚖️',
                     'fa-tachometer-alt': '📊'
                 };
 
@@ -126,9 +127,11 @@
     
     <style>
         :root {
-            --primary-color: #0b3d91; /* deeper professional blue */
+            --primary-color: #0b3d91;
             --secondary-color: #1976d2;
             --accent-color: #29b6f6;
+            --luxury-gold: #0b3d91;
+            --luxury-gold-light: #1976d2;
             --light-color: #f8f9fa;
             --dark-color: #2c3e50;
             --danger-color: #e74c3c;
@@ -161,6 +164,7 @@
             color: var(--dark-color);
             line-height: 1.6;
             position: relative;
+            padding-bottom: 56px; /* حجز مساحة لفوتر المطور الثابت في الأسفل حتى لا يغطي المحتوى */
         }
         
         .container {
@@ -257,6 +261,7 @@
 
         .welcome-logo { display:flex; align-items:center; justify-content:center; width:100%; height:100%; }
         .welcome-logo i { font-size:68px; color: #ffffff; opacity:0.98; }
+        .welcome-logo img { max-width:80%; max-height:80%; object-fit:contain; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35)); }
 
         .welcome-glow {
             position: absolute; inset: 0; pointer-events: none;
@@ -299,15 +304,22 @@
         @keyframes slideUpFade { from { transform: translateY(8px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
         
         .logo {
-            width: 56px !important;
-            height: 56px !important;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 12px;
+            width: 110px !important;
+            height: 110px !important;
+            background: #ffffff;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             box-shadow: 0 6px 18px rgba(11,61,145,0.18);
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid rgba(11,61,145,0.2);
+            padding: 5px;
+        }
+
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .logo i {
@@ -918,16 +930,16 @@
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
+            inset: 0;
             width: 100%;
             height: 100%;
+            height: 100dvh;
             background-color: rgba(0,0,0,0.5);
             z-index: 1000;
-            justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* يمنع تمدد النافذة لملء الشاشة رأسيًا (وهو ما كان يسبب خلل الانكماش) */
             overflow-y: auto;
-            padding: 20px 0;
+            -webkit-overflow-scrolling: touch;
+            box-sizing: border-box;
             animation: fadeIn 0.3s ease;
         }
         
@@ -935,11 +947,15 @@
             background-color: white;
             padding: 25px;
             border-radius: 10px;
-            width: 90%;
-            max-width: 800px;
+            width: min(800px, 92vw) !important;
+            max-width: min(800px, 92vw) !important;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             max-height: 90vh;
+            max-height: 90dvh;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            box-sizing: border-box;
+            margin: 20px auto; /* توسيط أفقي مضمون بطريقة الهوامش التلقائية بدل الاعتماد على flexbox */
             animation: modalSlideIn 0.3s ease;
         }
         
@@ -1564,6 +1580,46 @@
             font-size: 24px;
         }
 
+        /* زرار التبديل بين عرض الموبايل وعرض سطح المكتب */
+        #desktop-view-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 14px;
+            z-index: 9999;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: #fff;
+            font-size: 18px;
+            box-shadow: 0 4px 14px rgba(11,61,145,0.4);
+            cursor: pointer;
+            display: none; /* يتم التحكم في ظهوره بالجافاسكريبت بناءً على نوع الجهاز الفعلي، مش بعرض الصفحة الحالي (اللي بيتغير لما نبدّل وضع العرض نفسه) */
+            align-items: center;
+            justify-content: center;
+        }
+
+        #desktop-view-toggle.active {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+        }
+
+        /* شارة دائرية فاخرة لأيقونة لوحة التحكم (ميزان العدالة) */
+        .dashboard-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--luxury-gold-light);
+            font-size: 19px;
+            box-shadow: 0 4px 12px rgba(11,61,145,0.2), inset 0 0 0 2px rgba(255,255,255,0);
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+
         /* professional colored icon badges */
         .icon-badge {
             display: inline-flex;
@@ -1772,6 +1828,37 @@
         }
         
         @media (max-width: 768px) {
+            body {
+                padding-bottom: 64px;
+            }
+
+            .modal {
+                padding: 8px 0;
+                align-items: flex-start;
+            }
+
+            .modal-content {
+                width: 94vw !important;
+                max-width: 94vw !important;
+                padding: 14px;
+                max-height: calc(100vh - 24px);
+                max-height: calc(100dvh - 24px); /* يراعي شريط عنوان المتصفح على الموبايل */
+                margin: 8px auto;
+                border-radius: 8px;
+                box-sizing: border-box;
+            }
+
+            .modal-header {
+                padding-bottom: 10px;
+                margin-bottom: 12px;
+            }
+
+            .modal-content table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
             .form-row {
                 flex-direction: column;
                 gap: 0;
@@ -1843,12 +1930,12 @@
             }
             
             .logo {
-                width: 45px !important;
-                height: 45px !important;
+                width: 88px !important;
+                height: 88px !important;
             }
             
             .logo i {
-                font-size: 22px !important;
+                font-size: 34px !important;
             }
             
             .header-text h1 {
@@ -1874,6 +1961,36 @@
         }
         
         @media (max-width: 480px) {
+            body {
+                padding-bottom: 72px;
+            }
+
+            .modal-content {
+                width: 96vw !important;
+                max-width: 96vw !important;
+                margin: 6px auto;
+                padding: 10px;
+                font-size: 14px;
+                box-sizing: border-box;
+            }
+
+            .modal-header h2, .modal-header h3 {
+                font-size: 16px;
+            }
+
+            .global-developer-footer {
+                padding: 6px 4px;
+            }
+
+            .global-developer-footer .developer-info {
+                font-size: 9.5px;
+                gap: 3px;
+            }
+
+            .global-developer-footer .developer-rights {
+                display: none; /* إخفاء أقل عنصر أهمية على الشاشات الصغيرة جدًا لتفادي تكدس النص */
+            }
+
             .header-text h1 {
                 font-size: 16px !important;
             }
@@ -1883,22 +2000,29 @@
             }
             
             .logo {
-                width: 40px !important;
-                height: 40px !important;
+                width: 70px !important;
+                height: 70px !important;
             }
             
             .logo i {
-                font-size: 20px !important;
+                font-size: 30px !important;
             }
         }
     </style>
 </head>
 <body>
+    <!-- زرار عائم للتبديل بين عرض الموبايل وعرض سطح المكتب (يساعد على تفادي مشاكل توافق النوافذ المنبثقة مع بعض الأجهزة) -->
+    <button type="button" id="desktop-view-toggle" title="تبديل بين عرض الموبايل وعرض سطح المكتب">
+        <i class="fas fa-desktop"></i>
+    </button>
     <!-- شاشة ترحيبية عند بدء التشغيل - تصميم متحرك واحترافي -->
     <div id="welcome-overlay" aria-hidden="false">
         <div class="welcome-stage">
             <div class="welcome-media">
-                    <div class="welcome-logo"><i class="fas fa-balance-scale icon-primary"></i></div>
+                    <div class="welcome-logo">
+                        <img src="logo-welcome.png" alt="شعار هيئة قضايا الدولة"
+                             onerror="this.onerror=null;this.replaceWith(Object.assign(document.createElement('i'),{className:'fas fa-balance-scale icon-primary'}));">
+                    </div>
                     <div class="welcome-glow"></div>
                 </div>
 
@@ -1960,7 +2084,8 @@
             <!-- الشعار في المنتصف -->
             <div class="logo-container">
                 <div class="logo">
-                    <i class="fas fa-balance-scale icon-primary"></i>
+                    <img src="icon-512.png" alt="شعار هيئة قضايا الدولة" class="logo-img"
+                         onerror="this.onerror=null;this.replaceWith(Object.assign(document.createElement('i'),{className:'fas fa-balance-scale icon-primary'}));">
                 </div>
                 <div class="header-text">
                     <h1>نظام إدارة القضايا</h1>
@@ -1972,7 +2097,7 @@
         <!-- باقي كود التطبيق -->
         <nav>
             <ul>
-                <li><a href="#" class="nav-link active" data-section="dashboard"><i class="fas fa-tachometer-alt icon-large icon-primary"></i> لوحة التحكم</a></li>
+                <li><a href="#" class="nav-link active" data-section="dashboard"><i class="fas fa-scale-balanced icon-large icon-primary"></i> لوحة التحكم</a></li>
                 <li><a href="#" class="nav-link" data-section="add-case"><i class="fas fa-plus-circle icon-large icon-green"></i> إضافة قضية</a></li>
                 <li><a href="#" class="nav-link" data-section="cases-list"><i class="fas fa-list-alt icon-large icon-blue"></i> قائمة القضايا</a></li>
                 <li><a href="#" class="nav-link" data-section="bulk-sessions"><i class="fas fa-calendar-check icon-large icon-orange"></i> ترحيل الجلسات</a></li>
@@ -1984,7 +2109,7 @@
         
         <!-- قسم لوحة التحكم -->
         <section id="dashboard" class="section active">
-            <h2><i class="fas fa-tachometer-alt icon-primary"></i> لوحة التحكم</h2>
+            <h2><span class="dashboard-badge"><i class="fas fa-scale-balanced"></i></span> لوحة التحكم</h2>
             
             <div class="stats-cards">
                 <div class="stat-card">
@@ -2004,12 +2129,20 @@
                     <p>أحكام صالح</p>
                 </div>
                 <div class="stat-card">
+                    <h3 id="against-judgments-dash">0</h3>
+                    <p>أحكام ضد</p>
+                </div>
+                <div class="stat-card">
                     <h3 id="reserved-cases-dash">0</h3>
                     <p>قضايا محجوزة</p>
                 </div>
                 <div class="stat-card">
                     <h3 id="suspended-cases-dash">0</h3>
                     <p>قضايا موقوفة</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="cancelled-cases-dash">0</h3>
+                    <p>قضايا مشطوبة</p>
                 </div>
                 <div class="stat-card">
                     <h3 id="archived-cases-dash">0</h3>
@@ -2152,8 +2285,9 @@
                     </div>
                 </div>
 
-                <div style="display:flex;gap:8px;align-items:center;margin-top:6px;">
+                <div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap;">
                     <button type="button" id="choose-storage-btn" class="btn-info">اختيار مجلد التخزين</button>
+                    <button type="button" id="scan-import-btn" class="btn-info" style="background:#0b3d91;">مسح ومطابقة المستندات الموجودة</button>
                     <div id="storage-path-display" style="font-size:12px;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:600px;"></div>
                 </div>
                 
@@ -2774,7 +2908,9 @@
                         <button id="export-suspended-word" class="btn-word"><i class="fas fa-file-word"></i> تصدير إلى Word</button>
                     </div>
                 </div>
-                <table id="suspended-cases-table">
+
+                <h4 style="margin-top:20px;"><i class="fas fa-pause-circle icon-orange"></i> وقف تعليقي</h4>
+                <table id="suspended-cases-table-suspensive">
                     <thead>
                         <tr>
                             <th>رقم الدعوي</th>
@@ -2786,7 +2922,25 @@
                             <th class="no-print">الإجراءات</th>
                         </tr>
                     </thead>
-                    <tbody id="suspended-cases-body">
+                    <tbody id="suspended-cases-body-suspensive">
+                        <!-- سيتم ملؤها بالبيانات -->
+                    </tbody>
+                </table>
+
+                <h4 style="margin-top:25px;"><i class="fas fa-gavel icon-red"></i> وقف جزائي</h4>
+                <table id="suspended-cases-table-punitive">
+                    <thead>
+                        <tr>
+                            <th>رقم الدعوي</th>
+                            <th>سنة الدعوي</th>
+                            <th>المدعي</th>
+                            <th>المدعى عليه</th>
+                            <th>موضوع الدعوي</th>
+                            <th>تاريخ الوقف</th>
+                            <th class="no-print">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="suspended-cases-body-punitive">
                         <!-- سيتم ملؤها بالبيانات -->
                     </tbody>
                 </table>
@@ -3267,14 +3421,80 @@
                     <small style="color: #666; font-size: 12px;">يمكن رفع ملف PDF أو Word أو صورة</small>
                 </div>
                 
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="archive-after-judgment" checked>
-                        أرشفة القضية بعد تسجيل الحكم
-                    </label>
-                </div>
-                
                 <button type="submit" class="btn-success" style="width: 100%;"><i class="fas fa-gavel"></i> تسجيل الحكم</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة وقف حكم -->
+    <div id="suspend-judgment-modal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 id="suspend-judgment-modal-title">وقف حكم القضية</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="suspend-judgment-form">
+                <input type="hidden" id="suspend-judgment-case-id">
+
+                <!-- عرض بيانات القضية تلقائياً -->
+                <div class="case-details" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <h4>بيانات القضية</h4>
+                    <div class="case-details-grid">
+                        <div class="case-detail-item">
+                            <label>رقم وسنة الدعوي:</label>
+                            <p id="suspend-judgment-case-number-year"></p>
+                        </div>
+                        <div class="case-detail-item">
+                            <label>موضوع الدعوي:</label>
+                            <p id="suspend-judgment-subject"></p>
+                        </div>
+                        <div class="case-detail-item">
+                            <label>اسم المدعي:</label>
+                            <p id="suspend-judgment-plaintiff"></p>
+                        </div>
+                        <div class="case-detail-item">
+                            <label>اسم المدعي عليه:</label>
+                            <p id="suspend-judgment-defendant"></p>
+                        </div>
+                        <div class="case-detail-item">
+                            <label>الدائرة:</label>
+                            <p id="suspend-judgment-department"></p>
+                        </div>
+                        <div class="case-detail-item">
+                            <label>تاريخ جلسة الحكم:</label>
+                            <p id="suspend-judgment-session-date"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="suspend-judgment-text">منطوق الحكم *</label>
+                    <textarea id="suspend-judgment-text" rows="4" required placeholder="اكتب منطوق حكم الوقف هنا..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="suspend-judgment-type">نوع الوقف *</label>
+                        <select id="suspend-judgment-type" required>
+                            <option value="">-- اختر نوع الوقف --</option>
+                            <option value="تعليقي">وقف تعليقي</option>
+                            <option value="جزائي">وقف جزائي</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="suspend-judgment-date">تاريخ الوقف *</label>
+                        <input type="date" id="suspend-judgment-date" required>
+                        <small style="color: #666; font-size: 12px;">مضبوط تلقائيًا على تاريخ جلسة الحكم، ويمكن تعديله عند الحاجة</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="suspend-judgment-notes">ملاحظات إضافية</label>
+                    <textarea id="suspend-judgment-notes" rows="2" placeholder="ملاحظات إضافية..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-warning" style="width: 100%;"><i class="fas fa-pause-circle"></i> تسجيل الوقف</button>
             </form>
         </div>
     </div>
@@ -3335,23 +3555,22 @@
 
     <script>
         // ==================== إعدادات المزامنة عبر Firebase ====================
-        // بيانات القضايا بتتخزن في قاعدة بيانات Firebase Realtime Database
-        // تحت المسار caseData، وده بيسمح بمزامنة حقيقية بين اللاب توب والموبايل
-        // من أي مكان عبر الإنترنت (مش بس نفس الواي فاي).
-        const FIREBASE_DB_BASE = 'https://case-manager-32abd-default-rtdb.firebaseio.com';
-        const FIREBASE_DATA_PATH = 'caseData';
+        // بيانات القضايا بتتخزن في جذر قاعدة بيانات Firebase Realtime Database مباشرة
+        // (cases, favorableJudgments, againstJudgments... في المستوى الأول)، وده
+        // بيسمح بمزامنة حقيقية بين اللاب توب والموبايل من أي مكان عبر الإنترنت.
+        const FIREBASE_DB_BASE = 'https://case-manager-ahmed-default-rtdb.firebaseio.com';
         // ملحوظة: مفتاح الـ apiKey هنا خاص بإعدادات مشروع Firebase على الويب
         // وليس سرًّا حساسًا (هذا طبيعي في تطبيقات Firebase من جهة العميل)، لكن
         // الحماية الفعلية للبيانات بتتحدد من "Rules" قاعدة البيانات في لوحة تحكم Firebase.
-        const API_BASE_URL = `${FIREBASE_DB_BASE}/${FIREBASE_DATA_PATH}`;
+        const API_BASE_URL = FIREBASE_DB_BASE;
 
         // دوال API — بتتكلم مع Firebase Realtime Database عن طريق REST مباشرة
-        // (GET لجلب البيانات، PUT للكتابة/الاستبدال الكامل لنفس المسار)
+        // (GET لجلب البيانات، PUT للكتابة/الاستبدال الكامل لجذر القاعدة)
         async function apiRequest(endpoint, options = {}) {
             try {
                 const method = (options.method || 'GET').toUpperCase();
-                // Firebase REST يتطلب لاحقة .json على المسار
-                const url = `${API_BASE_URL}.json`;
+                // Firebase REST يتطلب لاحقة .json على المسار (هنا: جذر القاعدة)
+                const url = `${API_BASE_URL}/.json`;
 
                 const response = await fetch(url, {
                     // أي حفظ (كان في الأصل POST) لازم يبقى PUT عشان يستبدل نفس
@@ -3378,6 +3597,181 @@
                 // Fallback to localStorage if API fails
                 return null;
             }
+        }
+
+        // ==================== تخزين المستندات على الموبايل/الويب ====================
+        // في نسخة سطح المكتب (Electron)، الملفات بتتحفظ في مجلد على اللاب توب عن
+        // طريق window.electronAPI. الكائن ده مش موجود في المتصفح (موبايل أو ويب)،
+        // فبنعمل نسخة بديلة منه بنفس الأسماء والشكل بالظبط، لكن بتخزن الملفات
+        // مباشرة في نفس قاعدة بيانات Firebase Realtime Database المستخدمة للبيانات
+        // (مجانية بالكامل على خطة Spark، من غير أي حاجة لبطاقة ائتمان أو خطة Blaze).
+        // ملحوظة: كل مستند بيتحفظ كنص Base64 داخل قاعدة البيانات نفسها، فيُفضّل
+        // إبقاء حجم كل مستند معقول (أقل من ٥ ميجا تقريبًا) لأفضل أداء.
+
+        if (!window.electronAPI) {
+            (function setupWebDocumentStorage() {
+                function guessMimeType(filename) {
+                    const ext = (filename.split('.').pop() || '').toLowerCase();
+                    const map = {
+                        pdf: 'application/pdf',
+                        doc: 'application/msword',
+                        docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        xls: 'application/vnd.ms-excel',
+                        xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        png: 'image/png',
+                        jpg: 'image/jpeg',
+                        jpeg: 'image/jpeg',
+                        gif: 'image/gif',
+                        webp: 'image/webp',
+                        txt: 'text/plain'
+                    };
+                    return map[ext] || 'application/octet-stream';
+                }
+
+                function base64ToBlob(base64, mime) {
+                    const binary = atob(base64);
+                    const bytes = new Uint8Array(binary.length);
+                    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                    return new Blob([bytes], { type: mime });
+                }
+
+                async function docGet(caseId, fileId) {
+                    const res = await fetch(`${FIREBASE_DB_BASE}/documentsIndex/${encodeURIComponent(caseId)}/${encodeURIComponent(fileId)}.json`);
+                    if (!res.ok) return null;
+                    return await res.json();
+                }
+
+                async function docListMeta(caseId) {
+                    // بنجيب كل مستندات القضية دي (بما فيها محتوى الملف Base64) لأن
+                    // Firebase REST البسيط مش بيدعم استرجاع حقول جزئية فقط.
+                    const res = await fetch(`${FIREBASE_DB_BASE}/documentsIndex/${encodeURIComponent(caseId)}.json`);
+                    if (!res.ok) return {};
+                    const json = await res.json();
+                    return json || {};
+                }
+
+                async function docSet(caseId, fileId, value) {
+                    const res = await fetch(`${FIREBASE_DB_BASE}/documentsIndex/${encodeURIComponent(caseId)}/${encodeURIComponent(fileId)}.json`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(value)
+                    });
+                    if (!res.ok) {
+                        let detail = '';
+                        try { detail = await res.text(); } catch (e) {}
+                        throw new Error(`فشل حفظ المستند في قاعدة البيانات (HTTP ${res.status})${detail ? ': ' + detail : ''}`);
+                    }
+                    // نتأكد إن القراءة فورًا بعد الكتابة بترجع نفس البيانات فعلاً
+                    // (بيكشف حالات نادرة زي رفض الحجم الكبير من غير ما الـ HTTP status يبين ده بوضوح)
+                    const verify = await fetch(`${FIREBASE_DB_BASE}/documentsIndex/${encodeURIComponent(caseId)}/${encodeURIComponent(fileId)}.json`);
+                    const verifyJson = verify.ok ? await verify.json() : null;
+                    if (!verifyJson || verifyJson.id !== value.id) {
+                        throw new Error('لم يتم التأكد من حفظ المستند بعد الرفع (قد يكون حجم الملف كبيرًا جدًا)');
+                    }
+                }
+
+                async function docDelete(caseId, fileId) {
+                    const res = await fetch(`${FIREBASE_DB_BASE}/documentsIndex/${encodeURIComponent(caseId)}/${encodeURIComponent(fileId)}.json`, {
+                        method: 'DELETE'
+                    });
+                    if (!res.ok) throw new Error(`فشل حذف المستند (HTTP ${res.status})`);
+                }
+
+                window.electronAPI = {
+                    async saveFile({ caseId, filename, dataBase64, docType, caseData }) {
+                        try {
+                            const mime = guessMimeType(filename);
+                            const fileId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+                            await docSet(caseId, fileId, {
+                                id: fileId,
+                                originalName: filename,
+                                type: docType || '',
+                                uploadedAt: Date.now(),
+                                mime,
+                                dataBase64,
+                                caseData: caseData || null
+                            });
+
+                            return { success: true };
+                        } catch (e) {
+                            console.error('saveFile (web) error:', e);
+                            return { success: false, error: e.message };
+                        }
+                    },
+
+                    async listFiles({ caseId }) {
+                        try {
+                            const meta = await docListMeta(caseId);
+                            // بنشيل حقل dataBase64 الثقيل من القائمة، وبنجيبه بس وقت
+                            // العرض/التحميل الفعلي عن طريق readFile/downloadFile
+                            const files = Object.values(meta || {})
+                                .map(f => ({ id: f.id, originalName: f.originalName, type: f.type, uploadedAt: f.uploadedAt }))
+                                .sort((a, b) => (a.uploadedAt || 0) - (b.uploadedAt || 0));
+                            return { success: true, files };
+                        } catch (e) {
+                            console.error('listFiles (web) error:', e);
+                            return { success: false, files: [] };
+                        }
+                    },
+
+                    async readFile({ caseId, id }) {
+                        try {
+                            const f = await docGet(caseId, id);
+                            if (!f) throw new Error('file-not-found');
+                            return { success: true, mime: f.mime, dataBase64: f.dataBase64, name: f.originalName };
+                        } catch (e) {
+                            console.error('readFile (web) error:', e);
+                            return { success: false, error: e.message };
+                        }
+                    },
+
+                    async deleteFile({ caseId, id }) {
+                        try {
+                            await docDelete(caseId, id);
+                            return { success: true };
+                        } catch (e) {
+                            console.error('deleteFile (web) error:', e);
+                            return { success: false, error: e.message };
+                        }
+                    },
+
+                    async downloadFile({ caseId, id }) {
+                        try {
+                            const f = await docGet(caseId, id);
+                            if (!f) throw new Error('file-not-found');
+                            const blob = base64ToBlob(f.dataBase64, f.mime);
+                            const objectUrl = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = objectUrl;
+                            a.download = f.originalName || 'document';
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                            setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
+                            return { success: true };
+                        } catch (e) {
+                            console.error('downloadFile (web) error:', e);
+                            return { success: false, error: e.message };
+                        }
+                    },
+
+                    // فتح الملف بتطبيق النظام الافتراضي مش متاح من داخل المتصفح؛
+                    // بيرجع success:false عشان الكود الأصلي يعرض رابط تحميل بديل تلقائيًا
+                    async openFileNative() {
+                        return { success: false, error: 'not-applicable-web' };
+                    },
+
+                    async chooseStorageFolder() {
+                        showAlert('على الموبايل/المتصفح، المستندات بتتخزن تلقائيًا في قاعدة البيانات السحابية، مفيش داعي لاختيار مجلد', 'info');
+                        return { success: false, error: 'not-applicable-web' };
+                    },
+
+                    async getStoragePath() {
+                        return { success: true, path: 'التخزين السحابي (قاعدة البيانات)' };
+                    }
+                };
+            })();
         }
 
         async function loadDataFromAPI() {
@@ -3623,6 +4017,7 @@
         const editJudgmentModal = document.getElementById('edit-judgment-modal');
         const sessionHistoryModal = document.getElementById('session-history-modal');
         const judgmentModal = document.getElementById('judgment-modal');
+        const suspendJudgmentModal = document.getElementById('suspend-judgment-modal');
         const archiveModal = document.getElementById('archive-modal');
         const postponeForm = document.getElementById('postpone-form');
         const editCaseForm = document.getElementById('edit-case-form');
@@ -3802,8 +4197,10 @@
         const upcomingCasesDashElement = document.getElementById('upcoming-cases-dash');
         const expiredCasesDashElement = document.getElementById('expired-cases-dash');
         const favorableJudgmentsDashElement = document.getElementById('favorable-judgments-dash');
+        const againstJudgmentsDashElement = document.getElementById('against-judgments-dash');
         const reservedCasesDashElement = document.getElementById('reserved-cases-dash');
         const suspendedCasesDashElement = document.getElementById('suspended-cases-dash');
+        const cancelledCasesDashElement = document.getElementById('cancelled-cases-dash');
         const archivedCasesDashElement = document.getElementById('archived-cases-dash');
         
         // المتغيرات المؤقتة
@@ -4866,11 +5263,15 @@
             favorableJudgmentsCountElement.textContent = favorableJudgments.length;
             favorableJudgmentsDashElement.textContent = favorableJudgments.length;
             
+            if (againstJudgmentsDashElement) againstJudgmentsDashElement.textContent = againstJudgments.length;
+            
             reservedCasesCountElement.textContent = reservedCases.length;
             reservedCasesDashElement.textContent = reservedCases.length;
             
             suspendedCasesCountElement.textContent = suspendedCases.length;
             suspendedCasesDashElement.textContent = suspendedCases.length;
+            
+            if (cancelledCasesDashElement) cancelledCasesDashElement.textContent = cancelledCases.length;
             
             archivedCasesCountElement.textContent = archivedCases.length;
             archivedCasesDashElement.textContent = archivedCases.length;
@@ -6108,16 +6509,40 @@
             document.getElementById('judgment-defendant').textContent = caseItem.defendant || '';
             document.getElementById('judgment-session-date').textContent = formatDate(judgmentSessionDate);
             
-            document.getElementById('judgment-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('judgment-date').value = getDateKey(judgmentSessionDate);
             document.getElementById('judgment-text').value = '';
             document.getElementById('judgment-appeal-type').value = '';
             document.getElementById('judgment-appeal-details').value = '';
             document.getElementById('judgment-notes').value = '';
             document.getElementById('judgment-type').value = '';
             document.getElementById('judgment-document').value = '';
-            document.getElementById('archive-after-judgment').checked = true;
             
             judgmentModal.style.display = 'flex';
+        }
+
+        // ========== دالة فتح نافذة وقف حكم القضية المحجوزة ==========
+        function openSuspendJudgmentModal(caseId) {
+            const caseItem = reservedCases.find(c => c.id === caseId);
+            if (!caseItem) return;
+
+            document.getElementById('suspend-judgment-case-id').value = caseId;
+            document.getElementById('suspend-judgment-modal-title').textContent = `وقف حكم القضية: ${caseItem.number}/${caseItem.year}`;
+
+            // تاريخ الوقف الافتراضي = تاريخ جلسة الحكم نفسها (نفس منطق نافذة تسجيل الحكم)
+            const judgmentSessionDate = caseItem.reserveDate || caseItem.sessionDate;
+            document.getElementById('suspend-judgment-case-number-year').textContent = `${caseItem.number}/${caseItem.year}`;
+            document.getElementById('suspend-judgment-subject').textContent = caseItem.subject;
+            document.getElementById('suspend-judgment-department').textContent = caseItem.department;
+            document.getElementById('suspend-judgment-plaintiff').textContent = caseItem.plaintiff || '';
+            document.getElementById('suspend-judgment-defendant').textContent = caseItem.defendant || '';
+            document.getElementById('suspend-judgment-session-date').textContent = formatDate(judgmentSessionDate);
+
+            document.getElementById('suspend-judgment-text').value = '';
+            document.getElementById('suspend-judgment-type').value = '';
+            document.getElementById('suspend-judgment-notes').value = '';
+            document.getElementById('suspend-judgment-date').value = getDateKey(judgmentSessionDate);
+
+            suspendJudgmentModal.style.display = 'flex';
         }
         
         // ========== دالة فتح نافذة ترحيل القضية ==========
@@ -6189,7 +6614,6 @@
             const defendant = caseItem.defendant && caseItem.defendant.trim() ? caseItem.defendant : document.getElementById('judgment-defendant').textContent || '';
             
             const judgmentType = document.getElementById('judgment-type').value;
-            const archiveAfter = document.getElementById('archive-after-judgment').checked;
             const judgmentSessionDate = caseItem.reserveDate || caseItem.sessionDate;
             
             const judgmentData = {
@@ -6311,34 +6735,6 @@
                 localStorage.setItem('cases', JSON.stringify(cases));
             }
             
-            if (archiveAfter) {
-                const archivedCase = {
-                    id: Date.now().toString(),
-                    caseId: caseId,
-                    caseNumber: caseItem.number,
-                    caseYear: caseItem.year,
-                    subject: caseItem.subject,
-                    plaintiff: caseItem.plaintiff,
-                    defendant: caseItem.defendant,
-                    department: caseItem.department,
-                    circulationNumber: caseItem.circulationNumber,
-                    sessionHistory: caseItem.sessionHistory || [],
-                    judgmentType: judgmentType,
-                    judgmentText: judgmentData.text,
-                    judgmentDate: judgmentData.date,
-                    judgmentId: judgmentData.id,
-                    archiveDate: new Date().toISOString().split('T')[0],
-                    archiveReason: 'أرشفة تلقائية بعد تسجيل الحكم',
-                    archiveNotes: '',
-                    createdAt: new Date().toISOString()
-                };
-                
-                archivedCases.push(archivedCase);
-                localStorage.setItem('archivedCases', JSON.stringify(archivedCases));
-                
-                addNotification(`تم أرشفة القضية: ${caseItem.number}/${caseItem.year}`, 'info');
-            }
-            
             addNotification(`تم تسجيل حكم ${judgmentType === 'favorable' ? 'صالح' : 'ضد'} للقضية: ${caseItem.number}/${caseItem.year}`, 'success');
             showAlert('تم تسجيل الحكم بنجاح', 'success');
             
@@ -6352,8 +6748,81 @@
             renderArchivedCasesTable();
             updateStats();
         });
-        
-        // ========== عرض القضايا المحجوزة والمشطوبة ==========
+
+        // ========== تسجيل وقف حكم القضية المحجوزة للحكم ==========
+        const suspendJudgmentForm = document.getElementById('suspend-judgment-form');
+        suspendJudgmentForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const caseId = document.getElementById('suspend-judgment-case-id').value;
+            const caseIndex = reservedCases.findIndex(c => c.id === caseId);
+            if (caseIndex === -1) return;
+
+            const caseItem = reservedCases[caseIndex];
+            const suspendType = document.getElementById('suspend-judgment-type').value;
+            const suspendDate = document.getElementById('suspend-judgment-date').value;
+            const judgmentText = document.getElementById('suspend-judgment-text').value;
+            const suspendNotes = document.getElementById('suspend-judgment-notes').value;
+
+            // نستخدم نفس حقل suspendReason المستخدم بالفعل لتصنيف القضايا
+            // الموقوفة (تعليقي/جزائي) عشان القضية الجديدة تنضم لنفس تصنيف
+            // القضايا الموقوفة الحالية بدون الحاجة لحقل منفصل
+            const suspendedCase = {
+                ...caseItem,
+                suspendDate: suspendDate,
+                suspendReason: suspendType,
+                suspendNotes: suspendNotes,
+                judgmentText: judgmentText,
+                originalDate: caseItem.reserveDate || caseItem.sessionDate,
+                suspendedFromReserved: true
+            };
+
+            // إضافة الوقف لسجل جلسات القضية
+            if (!suspendedCase.sessionHistory) suspendedCase.sessionHistory = [];
+            suspendedCase.sessionHistory.push({
+                date: suspendDate,
+                type: 'suspend',
+                suspendType: suspendType,
+                reason: `وقف ${suspendType === 'تعليقي' ? 'تعليقي' : 'جزائي'} للحكم`,
+                judgmentText: judgmentText,
+                notes: suspendNotes,
+                recordedDate: new Date().toISOString()
+            });
+
+            suspendedCases.push(suspendedCase);
+            localStorage.setItem('suspendedCases', JSON.stringify(suspendedCases));
+
+            reservedCases = reservedCases.filter(c => c.id !== caseId);
+            localStorage.setItem('reservedCases', JSON.stringify(reservedCases));
+
+            // تحديث حالة القضية في القائمة الرئيسية إن وجدت
+            const matchingCase = cases.find(c => c.id === caseId);
+            if (matchingCase) {
+                if (!matchingCase.sessionHistory) matchingCase.sessionHistory = [];
+                matchingCase.sessionHistory.push({
+                    date: suspendDate,
+                    type: 'suspend',
+                    suspendType: suspendType,
+                    reason: `وقف ${suspendType === 'تعليقي' ? 'تعليقي' : 'جزائي'} للحكم`,
+                    judgmentText: judgmentText,
+                    notes: suspendNotes,
+                    recordedDate: new Date().toISOString()
+                });
+                localStorage.setItem('cases', JSON.stringify(cases));
+            }
+
+            addNotification(`تم وقف حكم القضية (وقف ${suspendType}): ${caseItem.number}/${caseItem.year}`, 'warning');
+            showAlert('تم تسجيل وقف الحكم بنجاح', 'success');
+
+            // حفظ البيانات في التخزين الدائم (Electron app-data.json)
+            saveDataToAPI();
+
+            suspendJudgmentModal.style.display = 'none';
+            suspendJudgmentForm.reset();
+            renderReservedAndCancelledCases();
+            renderSuspendedCasesTable();
+            updateStats();
+        });
         function renderReservedAndCancelledCases(filteredReservedCases = null) {
             const reservedBody = document.getElementById('reserved-cases-body');
             const cancelledBody = document.getElementById('cancelled-cases-body');
@@ -6376,6 +6845,7 @@
                         <button class="btn-purple btn-session-history" data-id="${caseItem.id}"><i class="fas fa-history"></i> سجل الجلسات</button>
                         <button class="btn-postpone btn-postpone-case" data-id="${caseItem.id}"><i class="fas fa-calendar-plus"></i> مد أجل الحكم</button>
                         <button class="btn-judgment btn-judge-case" data-id="${caseItem.id}"><i class="fas fa-gavel"></i> الحكم</button>
+                        <button class="btn-warning btn-suspend-judgment" data-id="${caseItem.id}"><i class="fas fa-pause-circle"></i> وقف الدعوي</button>
                         <button class="btn-return btn-return-case" data-id="${caseItem.id}" data-type="reserved"><i class="fas fa-redo"></i> إعادة للرول</button>
                     </td>
                 `;
@@ -6431,11 +6901,15 @@
         
         // ========== عرض القضايا الموقوفة ==========
         function renderSuspendedCasesTable() {
-            const suspendedBody = document.getElementById('suspended-cases-body');
-            
-            suspendedBody.innerHTML = '';
-            
-            suspendedCases.forEach(caseItem => {
+            const suspensiveBody = document.getElementById('suspended-cases-body-suspensive');
+            const punitiveBody = document.getElementById('suspended-cases-body-punitive');
+
+            if (!suspensiveBody || !punitiveBody) return;
+
+            suspensiveBody.innerHTML = '';
+            punitiveBody.innerHTML = '';
+
+            function buildRow(caseItem) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${caseItem.number}</td>
@@ -6450,7 +6924,18 @@
                         <button class="btn-return btn-return-suspended-case" data-id="${caseItem.id}"><i class="fas fa-redo"></i> إعادة للرول</button>
                     </td>
                 `;
-                suspendedBody.appendChild(row);
+                return row;
+            }
+
+            suspendedCases.forEach(caseItem => {
+                // القضايا اللي معندهاش تصنيف محدد (زي أي قضايا موقوفة من
+                // قبل إضافة هذه الميزة) بتتحط افتراضيًا في قسم "تعليقي"
+                // عشان متختفيش من العرض
+                if (caseItem.suspendReason === 'جزائي') {
+                    punitiveBody.appendChild(buildRow(caseItem));
+                } else {
+                    suspensiveBody.appendChild(buildRow(caseItem));
+                }
             });
         }
         
@@ -7130,6 +7615,10 @@
             } else if (button.classList.contains('btn-judge-case')) {
                 e.preventDefault();
                 openJudgmentModal(dataId);
+                handled = true;
+            } else if (button.classList.contains('btn-suspend-judgment')) {
+                e.preventDefault();
+                openSuspendJudgmentModal(dataId);
                 handled = true;
             } else if (button.classList.contains('btn-return-case')) {
                 e.preventDefault();
@@ -7908,7 +8397,7 @@
                         // clear input
                         fileInput.value = '';
                     } else {
-                        showAlert('فشل رفع المستند', 'error');
+                        showAlert('فشل رفع المستند' + (res && res.error ? (': ' + res.error) : ''), 'error');
                         console.error(res && res.error);
                     }
                 };
@@ -8004,7 +8493,7 @@
                         currentFileNameForCustomDoc = null;
                         currentCaseDataForCustomDoc = null;
                     } else {
-                        showAlert('فشل رفع المستند', 'error');
+                        showAlert('فشل رفع المستند' + (res && res.error ? (': ' + res.error) : ''), 'error');
                         console.error(res && res.error);
                     }
                 };
@@ -8084,27 +8573,79 @@
         }
 
         async function viewDocument(caseId, id) {
+            // مهم: لازم نفتح النافذة فورًا وبشكل متزامن (قبل أي await) وإلا متصفحات
+            // الموبايل هتمنعها كـ"نافذة منبثقة" لأنها بقت بعيدة عن ضغطة المستخدم المباشرة.
+            const w = window.open('', '_blank');
+            if (!w) { showAlert('تعذر فتح نافذة العرض، تحقق من إعدادات النوافذ المنبثقة/الحظر في المتصفح', 'warning'); return; }
+            w.document.write('<html dir="rtl"><head><title>جارٍ التحميل...</title></head><body style="font-family:sans-serif;padding:20px;">جارٍ تحميل المستند...</body></html>');
+
             try {
-                const res = await window.electronAPI.readFile({ caseId, id });
-                if (!res || !res.success) { showAlert('تعذر فتح الملف', 'error'); return; }
-                const dataUrl = `data:${res.mime};base64,${res.dataBase64}`;
-                // Open in new window/tab
-                const w = window.open('','_blank');
-                if (!w) { showAlert('تعذر فتح نافذة العرض، تحقق من إعدادات النوافذ المنبثقة', 'warning'); return; }
-                // For images, open in a new tab; for other file types (PDF, DOCX, DOC, etc.) open with the system default app
-                if (res.mime && res.mime.startsWith('image/')) {
-                    w.document.write(`<html dir="rtl"><head><title>${res.name}</title></head><body style="margin:0"><img src="${dataUrl}" style="max-width:100%;height:auto;display:block;margin:0 auto"></body></html>`);
-                } else {
-                    // ask main process to open with default OS program (writes temp file and opens it)
-                    const op = await window.electronAPI.openFileNative({ caseId, id });
-                    if (!op || !op.success) {
-                        // fallback: show download link in new tab
-                        w.document.write(`<html dir="rtl"><head><title>${res.name}</title></head><body style="padding:20px;font-family:sans-serif;"><h3>${res.name}</h3><a id="dl" href="${dataUrl}" download="${res.name}">تحميل الملف</a></body></html>`);
+                // في نسخة اللاب توب (Electron): نفتح الملف مباشرة من على القرص
+                // برابط file:// بدل ما نحوّله لنص Base64 طويل وندسّه في رابط
+                // data:. الطريقة القديمة كانت بتفشل بصمت مع الملفات الكبيرة
+                // (زي مستندات PDF كبيرة الحجم) لأن رابط الـ data: بيتجاوز
+                // الحد الأقصى لطول الروابط اللي المتصفح بيقبله.
+                if (window.electronAPI && window.electronAPI.getFileUrl) {
+                    const urlRes = await window.electronAPI.getFileUrl({ caseId, id });
+                    if (urlRes && urlRes.success) {
+                        if (urlRes.mime && (urlRes.mime.startsWith('image/') || urlRes.mime === 'application/pdf')) {
+                            w.location.href = urlRes.url;
+                            return;
+                        }
+                        // أنواع الملفات التانية (Word, Excel...): افتحها بالبرنامج
+                        // الافتراضي المثبت على الجهاز
+                        const op = await window.electronAPI.openFileNative({ caseId, id });
+                        if (op && op.success) {
+                            try { w.close(); } catch (e) {}
+                            return;
+                        }
+                        // لو فشلت المحاولتين، نكمل تحت للطريقة الاحتياطية
                     }
-                    // close the blank window we opened (since system app handles display)
-                    try { w.close(); } catch(e){}
                 }
-            } catch (e) { console.error(e); showAlert('خطأ عرض المستند', 'error'); }
+
+                // طريقة احتياطية (متصفح/موبايل، أو لو فشلت الطريقة أعلاه لأي سبب)
+                const res = await window.electronAPI.readFile({ caseId, id });
+                if (!res || !res.success) {
+                    w.document.open();
+                    w.document.write('<html dir="rtl"><head><title>خطأ</title></head><body style="font-family:sans-serif;padding:20px;">تعذر فتح الملف</body></html>');
+                    w.document.close();
+                    showAlert('تعذر فتح الملف', 'error');
+                    return;
+                }
+                const dataUrl = `data:${res.mime};base64,${res.dataBase64}`;
+
+                if (res.mime && res.mime.startsWith('image/')) {
+                    w.document.open();
+                    w.document.write(`<html dir="rtl"><head><title>${res.name}</title></head><body style="margin:0"><img src="${dataUrl}" style="max-width:100%;height:auto;display:block;margin:0 auto"></body></html>`);
+                    w.document.close();
+                } else if (res.mime === 'application/pdf') {
+                    // مهم: التنقل المباشر لرابط الملف (بدل كتابة وسم <embed>)
+                    // هو اللي بيفعّل عارض PDF المدمج جوه Electron/Chromium
+                    // تلقائيًا. وسم <embed> لوحده مابيشتغلش مع عارض PDF
+                    // المدمج، وده اللي كان بيسبب ظهور صفحة بيضاء فاضية.
+                    w.location.href = dataUrl;
+                } else {
+                    // ask main process to open with default OS program (Electron desktop only)
+                    const op = await window.electronAPI.openFileNative({ caseId, id });
+                    if (op && op.success) {
+                        // نجح فتح الملف بالبرنامج الافتراضي على سطح المكتب - نقفل النافذة الفارغة
+                        try { w.close(); } catch (e) {}
+                    } else {
+                        // على الموبايل/المتصفح: اعرض رابط تحميل/عرض داخل نفس النافذة (بدون إغلاقها)
+                        w.document.open();
+                        w.document.write(`<html dir="rtl"><head><title>${res.name}</title></head><body style="padding:20px;font-family:sans-serif;"><h3>${res.name}</h3><p>هذا النوع من الملفات لا يمكن عرضه مباشرة داخل المتصفح.</p><a id="dl" href="${dataUrl}" download="${res.name}" style="display:inline-block;padding:10px 18px;background:#0b3d91;color:#fff;border-radius:6px;text-decoration:none;">تحميل الملف</a></body></html>`);
+                        w.document.close();
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                try {
+                    w.document.open();
+                    w.document.write('<html dir="rtl"><head><title>خطأ</title></head><body style="font-family:sans-serif;padding:20px;">حدث خطأ أثناء عرض المستند</body></html>');
+                    w.document.close();
+                } catch (_) {}
+                showAlert('خطأ عرض المستند', 'error');
+            }
         }
 
         async function downloadDocument(caseId, id) {
@@ -8384,120 +8925,459 @@
             } catch (e) { if (display) display.textContent = '(خطأ في جلب مسار التخزين)'; }
         })();
 
-        // تمكين اللصق من الحافظة داخل أي حقل نصي حتى لو منعت جهة أخرى الحدث
-        document.addEventListener('paste', async function(e){
-            try {
-                const target = e.target;
-                if (!target) return;
-                const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
-                if (!isInput) return;
-                // If native event has data, allow it
-                if (e.clipboardData && e.clipboardData.getData('text')) return;
+        // مسح مجلد التخزين ومطابقة المجلدات الموجودة بالفعل مع القضايا المسجلة
+        (function initScanImportUI(){
+            const scanBtn = document.getElementById('scan-import-btn');
+            if (!scanBtn) return;
 
-                // Try to read clipboard via Electron first (reliable), fallback to navigator.clipboard
-                let text = '';
+            scanBtn.addEventListener('click', async () => {
+                if (!window.electronAPI || !window.electronAPI.scanStorageFolders) {
+                    showAlert('هذه الميزة متاحة فقط في نسخة اللاب توب (سطح المكتب)', 'warning');
+                    return;
+                }
+
+                scanBtn.disabled = true;
+                const originalText = scanBtn.textContent;
+                scanBtn.textContent = 'جارٍ المسح...';
+
                 try {
-                    const r = await window.electronAPI.readClipboard();
-                    if (r && r.success) text = r.text || '';
-                } catch (err) { text = ''; }
-                if (!text) {
-                    try { text = await navigator.clipboard.readText(); } catch (err) { try { text = (window.clipboardData && window.clipboardData.getData && window.clipboardData.getData('Text')) || ''; } catch(e) { text = ''; } }
-                }
+                    // نجبر إعادة تحميل أحدث بيانات القضايا الأول، عشان نضمن
+                    // إن المطابقة بتتم على بيانات كاملة ومحدثة مهما كان
+                    // توقيت الضغط على الزرار (حتى لو البرنامج لسه بيحمّل)
+                    try { await loadDataFromAPI(); } catch (e) { console.warn('تعذر تحديث بيانات القضايا قبل المسح:', e); }
 
-                if (text !== undefined && text !== null && text !== '') {
-                    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-                        const start = target.selectionStart || 0;
-                        const end = target.selectionEnd || 0;
-                        const val = target.value || '';
-                        target.value = val.slice(0, start) + text + val.slice(end);
-                        target.selectionStart = target.selectionEnd = start + text.length;
-                        e.preventDefault();
-                    } else if (target.isContentEditable) {
-                        document.execCommand('insertText', false, text);
-                        e.preventDefault();
+                    const scanRes = await window.electronAPI.scanStorageFolders();
+                    if (!scanRes || !scanRes.success) {
+                        showAlert('فشل مسح مجلد التخزين: ' + (scanRes && scanRes.error ? scanRes.error : ''), 'danger');
+                        return;
                     }
-                }
-            } catch (ex) { /* ignore */ }
-        });
 
-        // تمكين النسخ (copy) من أي عنصر وظيفي أو نص محدد
-        document.addEventListener('copy', async function(e){
-            try {
-                let selText = window.getSelection ? window.getSelection().toString() : '';
-                if (!selText) {
-                    const target = document.activeElement;
-                    if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
-                        const start = target.selectionStart || 0;
-                        const end = target.selectionEnd || 0;
-                        selText = (target.value || '').substring(start, end);
+                    const folders = scanRes.folders || [];
+                    if (folders.length === 0) {
+                        showAlert('لم يتم العثور على أي مجلدات داخل مجلد التخزين المختار', 'warning');
+                        return;
                     }
-                }
-                if (selText) {
-                    // try to write via electron clipboard
-                    try {
-                        await window.electronAPI.writeClipboard({ text: selText });
-                        e.preventDefault();
-                    } catch (err) {
-                        // fallback to event.clipboardData
-                        if (e.clipboardData) {
-                            e.clipboardData.setData('text/plain', selText);
-                            e.preventDefault();
+
+                    // كل القضايا المتاحة للمطابقة من كل التصنيفات (مش بس
+                    // الحالية والمؤرشفة) — لازم نضم الأحكام والقضايا
+                    // المحجوزة والملغاة والموقوفة كمان، وإلا هتفضل قضايا
+                    // كتير مش ظاهرة في المطابقة خالص.
+                    // ملحوظة: سجلات الأحكام (لصالح/ضد) بتحتفظ بمعرف القضية
+                    // الأصلية في حقل caseId منفصل عن id بتاعها هي، فلازم
+                    // نستخدمه عشان المستندات تتسجل تحت القضية الصح.
+                    const allCases = [
+                        ...(cases || []),
+                        ...(archivedCases || []),
+                        ...(reservedCases || []),
+                        ...(cancelledCases || []),
+                        ...(suspendedCases || []),
+                        ...(favorableJudgments || []).map(j => ({ ...j, id: j.caseId || j.id })),
+                        ...(againstJudgments || []).map(j => ({ ...j, id: j.caseId || j.id }))
+                    ];
+
+                    // مقارنة رقمية مرنة: بتتجاهل المسافات والأصفار الزيادة
+                    // في البداية (مثلاً "08" هتتطابق مع "8")
+                    function numbersMatch(a, b) {
+                        const sa = String(a || '').trim();
+                        const sb = String(b || '').trim();
+                        if (!sa || !sb) return false;
+                        if (sa === sb) return true;
+                        const na = parseInt(sa, 10);
+                        const nb = parseInt(sb, 10);
+                        return !isNaN(na) && !isNaN(nb) && na === nb;
+                    }
+
+                    function normalizeForMatch(s) {
+                        return String(s || '').trim().replace(/\s+/g, ' ');
+                    }
+
+                    // بيدور على القضية المطابقة لاسم مجلد معين. المرحلة 1:
+                    // مطابقة بادئة اسم المدعي + المدعي عليه (الأسلوب الثابت
+                    // اللي بتتسمى بيه كل المجلدات يدويًا). المرحلة 2 (لو
+                    // مالقيناش): مطابقة مرنة برقم وسنة الدعوى في أي مكان
+                    // داخل اسم المجلد، سواء قبل بعض أو بعد بعض.
+                    function findCaseForFolder(folderName) {
+                        for (const c of allCases) {
+                            const plaintiff = normalizeForMatch(c.plaintiff);
+                            const defendant = normalizeForMatch(c.defendant);
+                            if (!plaintiff || !defendant) continue;
+                            const prefix = `${plaintiff}_${defendant}`;
+                            if (folderName.indexOf(prefix) === 0) return c;
+                        }
+
+                        const tokens = folderName.split(/[_\-\s]+/);
+                        for (let i = 0; i < tokens.length; i++) {
+                            if (!/^\d{4}$/.test(tokens[i])) continue;
+                            const yearCandidate = tokens[i];
+                            const before = tokens[i - 1];
+                            const after = tokens[i + 1];
+                            const numberCandidate = (before && /^\d+$/.test(before)) ? before
+                                : ((after && /^\d+$/.test(after)) ? after : null);
+                            if (!numberCandidate) continue;
+                            const match = allCases.find(c =>
+                                numbersMatch(c.number || c.caseNumber, numberCandidate) &&
+                                numbersMatch(c.year || c.caseYear, yearCandidate)
+                            );
+                            if (match) return match;
+                        }
+                        return null;
+                    }
+
+                    let matchedCount = 0;
+                    let importedFilesCount = 0;
+                    let unmatchedFolders = [];
+
+                    for (const folder of folders) {
+                        const matchedCase = findCaseForFolder(folder.folderName);
+
+                        if (!matchedCase) {
+                            unmatchedFolders.push(folder.folderName);
+                            continue;
+                        }
+
+                        const importRes = await window.electronAPI.importCaseFolder({
+                            caseId: matchedCase.id,
+                            folderName: folder.folderName
+                        });
+
+                        if (importRes && importRes.success) {
+                            matchedCount++;
+                            importedFilesCount += (importRes.addedCount || 0);
                         }
                     }
+
+                    let summary = `تم فحص ${folders.length} مجلد. تمت مطابقة واستيراد مستندات ${matchedCount} قضية (${importedFilesCount} مستند جديد).`;
+
+                    if (unmatchedFolders.length > 0) {
+                        showAlert(matchedCount > 0 ? 'تم الاستيراد بنجاح، وهناك مجلدات تحتاج مطابقة يدوية' : 'لم يتم إيجاد مطابقة تلقائية لبعض المجلدات', 'warning');
+
+                        const wantsManual = confirm(
+                            summary + `\n\nهل تريد فتح شاشة لمطابقة الـ ${unmatchedFolders.length} مجلد المتبقية يدويًا الآن؟`
+                        );
+
+                        if (wantsManual) {
+                            const selections = await showManualMatchModal(unmatchedFolders, allCases);
+                            let manualMatchedCount = 0;
+                            let manualImportedFilesCount = 0;
+
+                            for (const sel of selections) {
+                                const importRes = await window.electronAPI.importCaseFolder({
+                                    caseId: sel.caseId,
+                                    folderName: sel.folderName
+                                });
+                                if (importRes && importRes.success) {
+                                    manualMatchedCount++;
+                                    manualImportedFilesCount += (importRes.addedCount || 0);
+                                }
+                            }
+
+                            if (manualMatchedCount > 0) {
+                                showAlert(`تم استيراد مستندات ${manualMatchedCount} قضية إضافية يدويًا (${manualImportedFilesCount} مستند)`, 'success');
+                            }
+
+                            const stillUnmatched = unmatchedFolders.filter(f => !selections.find(s => s.folderName === f));
+                            if (stillUnmatched.length > 0) {
+                                alert(`تم تجاهل أو عدم مطابقة ${stillUnmatched.length} مجلد:\n` + stillUnmatched.slice(0, 20).join('\n'));
+                            }
+                        }
+                    } else {
+                        showAlert('تم الاستيراد بنجاح', 'success');
+                        alert(summary);
+                    }
+
+                } catch (e) {
+                    console.error(e);
+                    showAlert('حدث خطأ أثناء المسح والاستيراد: ' + e.message, 'danger');
+                } finally {
+                    scanBtn.disabled = false;
+                    scanBtn.textContent = originalText;
                 }
-            } catch (ex) { /* ignore */ }
-        });
-        
-        // ========== تفعيل النسخ واللصق لجميع حقول الإدخال (محسّن) ==========
-        (function enableCopyPasteForAllInputs() {
-            // Copy: حاول الكتابة عبر واجهة Electron ثم fallback إلى event.clipboardData
-            document.addEventListener('copy', async function(e) {
+            });
+        })();
+
+        // شاشة مطابقة يدوية: بتعرض كل مجلد ملقاش قضية مطابقة تلقائيًا،
+        // مع قائمة منسدلة لاختيار القضية الصحيحة يدويًا (أو تجاهله)
+        function showManualMatchModal(unmatchedFolders, allCases) {
+            return new Promise((resolve) => {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+                const box = document.createElement('div');
+                box.style.cssText = 'background:#fff;border-radius:10px;padding:20px;max-width:750px;width:100%;max-height:85vh;overflow:auto;direction:rtl;';
+
+                const title = document.createElement('h3');
+                title.style.cssText = 'margin-top:0;';
+                title.textContent = `مطابقة يدوية لـ ${unmatchedFolders.length} مجلد`;
+                box.appendChild(title);
+
+                const desc = document.createElement('p');
+                desc.style.cssText = 'font-size:13px;color:#555;margin-top:-8px;';
+                desc.textContent = 'البرنامج بيقترح تلقائيًا أقرب قضية محتملة لكل مجلد (معلّمة بـ ⭐ ومختارة مسبقًا) — راجعها وأكدها أو غيّرها لو غلط، أو اختر "تجاهل" لو مفيش قضية مناسبة.';
+                box.appendChild(desc);
+
+                const rows = [];
+                unmatchedFolders.forEach((folderName) => {
+                    const row = document.createElement('div');
+                    row.style.cssText = 'margin-bottom:12px;padding:10px;border:1px solid #eee;border-radius:6px;background:#fafafa;';
+
+                    const label = document.createElement('div');
+                    label.style.cssText = 'font-weight:bold;margin-bottom:6px;word-break:break-all;font-size:13px;';
+                    label.textContent = folderName;
+                    row.appendChild(label);
+
+                    // اقتراح تلقائي: بندور على أقرب قضية محتملة بعدد الكلمات
+                    // المشتركة بين اسم المجلد واسم المدعي/المدعى عليه، عشان
+                    // نساعد المستخدم بدل ما يدور من الصفر في قائمة طويلة.
+                    // بنستبعد الكلمات الشائعة جدًا في الأسماء العربية (زي
+                    // "عبد"، "محمد"، "احمد"...) من الحساب، عشان متديش نتيجة
+                    // عالية غلط لقضية مالهاش علاقة غير إنها بتشترك في كلمة
+                    // شائعة بس.
+                    const COMMON_NAME_WORDS = new Set([
+                        'عبد', 'محمد', 'احمد', 'أحمد', 'علي', 'حسن', 'حسين',
+                        'محمود', 'ابراهيم', 'إبراهيم', 'عمر', 'يوسف', 'السيد',
+                        'سيد', 'بن', 'بنت', 'عبدالله', 'عبدالرحمن', 'مصطفى',
+                        'خالد', 'سعيد', 'وزير', 'رئيس', 'محافظ', 'ضد', 'وكيل',
+                        'وزارة', 'مجلس', 'الوحدة', 'المحلية', 'العام', 'قسم'
+                    ]);
+
+                    const folderWords = new Set(
+                        folderName.replace(/[_\-]/g, ' ').split(/\s+/)
+                            .filter(w => w.length >= 2 && !COMMON_NAME_WORDS.has(w))
+                    );
+                    let bestCase = null;
+                    let bestScore = 0;
+                    allCases.forEach(c => {
+                        const caseWords = `${c.plaintiff || ''} ${c.defendant || ''}`.split(/\s+/)
+                            .filter(w => w.length >= 2 && !COMMON_NAME_WORDS.has(w));
+                        let score = 0;
+                        caseWords.forEach(w => { if (folderWords.has(w)) score++; });
+                        if (score > bestScore) { bestScore = score; bestCase = c; }
+                    });
+                    const suggestedCase = bestScore >= 2 ? bestCase : null;
+
+                    const select = document.createElement('select');
+                    select.style.cssText = 'width:100%;padding:7px;border-radius:5px;border:1px solid #ccc;';
+                    const optSkip = document.createElement('option');
+                    optSkip.value = '';
+                    optSkip.textContent = '-- تجاهل هذا المجلد --';
+                    select.appendChild(optSkip);
+
+                    // نحط القضية المقترحة في أول القائمة (لو لقينا واحدة)
+                    // عشان تبقى قدام عين المستخدم على طول
+                    const orderedCases = suggestedCase
+                        ? [suggestedCase, ...allCases.filter(c => c !== suggestedCase)]
+                        : allCases;
+
+                    orderedCases.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.id;
+                        const num = c.number || c.caseNumber || '؟';
+                        const yr = c.year || c.caseYear || '؟';
+                        const isSuggested = c === suggestedCase;
+                        opt.textContent = `${isSuggested ? '⭐ ' : ''}${c.plaintiff || '(بدون اسم)'} ضد ${c.defendant || '(بدون اسم)'} - رقم ${num} لسنة ${yr}`;
+                        select.appendChild(opt);
+                    });
+
+                    if (suggestedCase) {
+                        select.value = suggestedCase.id;
+                        row.style.borderColor = '#8bc34a';
+                        row.style.background = '#f5fbf0';
+                    }
+
+                    row.appendChild(select);
+                    box.appendChild(row);
+                    rows.push({ folderName, select });
+                });
+
+                const btnRow = document.createElement('div');
+                btnRow.style.cssText = 'display:flex;gap:8px;justify-content:flex-end;margin-top:10px;position:sticky;bottom:0;background:#fff;padding-top:10px;';
+
+                const btnCancel = document.createElement('button');
+                btnCancel.type = 'button';
+                btnCancel.textContent = 'إلغاء (بدون استيراد)';
+                btnCancel.className = 'btn-danger';
+                btnCancel.onclick = () => { document.body.removeChild(overlay); resolve([]); };
+
+                const btnImport = document.createElement('button');
+                btnImport.type = 'button';
+                btnImport.textContent = 'استيراد المحدد';
+                btnImport.className = 'btn-success';
+                btnImport.onclick = () => {
+                    const selections = rows
+                        .filter(r => r.select.value)
+                        .map(r => ({ folderName: r.folderName, caseId: r.select.value }));
+                    document.body.removeChild(overlay);
+                    resolve(selections);
+                };
+
+                btnRow.appendChild(btnCancel);
+                btnRow.appendChild(btnImport);
+                box.appendChild(btnRow);
+
+                overlay.appendChild(box);
+                document.body.appendChild(overlay);
+            });
+        }
+
+        // ============================================================
+        // ============================================================
+        // تبديل بين عرض الموبايل وعرض سطح المكتب (Desktop View) — عشان
+        // نتيح للمستخدم يشوف التطبيق بنفس تخطيط شاشة الكمبيوتر على
+        // الموبايل، وده بيلغي مشاكل توافق النوافذ المنبثقة مع بعض
+        // المتصفحات/الأجهزة تمامًا لأن نفس تخطيط سطح المكتب المضمون
+        // بيشتغل صح هو اللي بيتفعّل، وبعدين المستخدم يقدر يكبّر ويصغّر
+        // ويتنقل باللمس زي أي موقع سطح مكتب عادي.
+        // ============================================================
+        (function initDesktopViewToggle() {
+            const STORAGE_KEY = 'preferDesktopView';
+            const DESKTOP_VIEWPORT = 'width=1280';
+            const MOBILE_VIEWPORT = 'width=device-width, initial-scale=1.0, viewport-fit=cover';
+
+            const viewportMeta = document.getElementById('viewport-meta');
+            const toggleBtn = document.getElementById('desktop-view-toggle');
+            if (!viewportMeta || !toggleBtn) return;
+
+            // نحدد هل الجهاز موبايل فعليًا مرة واحدة بس، بناءً على حجم
+            // شاشة الجهاز الحقيقي (screen.width) ونوع الجهاز (User-Agent)،
+            // مش بعرض الصفحة الحالي (viewport) اللي بيتغير كل ما نبدّل
+            // الوضع. بالطريقة دي الزرار مابيختفيش أبدًا بعد التفعيل.
+            const isMobileDevice = (window.screen && Math.min(window.screen.width, window.screen.height) <= 900)
+                || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+            if (!isMobileDevice) return; // على اللاب توب: الزرار مايتفعلش أصلاً
+
+            // بنفرض ظهور الزرار بأولوية قصوى (inline + !important) بدل
+            // الاعتماد على أي قاعدة CSS ممكن تتعارض مع تغيير الـ viewport
+            toggleBtn.style.setProperty('display', 'flex', 'important');
+
+            function applyMode(isDesktop) {
+                viewportMeta.setAttribute('content', isDesktop ? DESKTOP_VIEWPORT : MOBILE_VIEWPORT);
+                toggleBtn.classList.toggle('active', isDesktop);
+                toggleBtn.innerHTML = isDesktop
+                    ? '<i class="fas fa-mobile-alt"></i>'
+                    : '<i class="fas fa-desktop"></i>';
+                toggleBtn.title = isDesktop
+                    ? 'الرجوع لعرض الموبايل العادي'
+                    : 'عرض التطبيق بشكل سطح المكتب (يفيد لو النوافذ المنبثقة مش ظاهرة صح)';
+                // نعيد فرض الظهور بعد كل تبديل، احتياطًا لأي تعارض جديد
+                toggleBtn.style.setProperty('display', 'flex', 'important');
+            }
+
+            let isDesktop = localStorage.getItem(STORAGE_KEY) === 'true';
+            applyMode(isDesktop);
+
+            toggleBtn.addEventListener('click', () => {
+                isDesktop = !isDesktop;
+                localStorage.setItem(STORAGE_KEY, isDesktop ? 'true' : 'false');
+                applyMode(isDesktop);
+                if (isDesktop) {
+                    showAlert('تم تفعيل عرض سطح المكتب. تقدر تكبّر/تصغّر وتتنقل باللمس زي أي موقع كمبيوتر عادي.', 'info');
+                } else {
+                    showAlert('تم الرجوع لعرض الموبايل العادي.', 'info');
+                }
+            });
+        })();
+
+        // فرض حجم وموضع صحيح للنوافذ المنبثقة عبر JavaScript مباشرة،
+        // بدل الاعتماد على CSS بس. ده حل نهائي بيضمن ظهور أي نافذة صح
+        // مهما كان سبب أي تعارض CSS مش واضح، لأن القيم بتتحسب فعليًا من
+        // حجم الشاشة الحقيقي لحظة الفتح، وبتتفرض بأولوية قصوى (inline
+        // !important) تكسب على أي قاعدة تانية في الصفحة.
+        // ============================================================
+        (function enforceModalSizing() {
+            function applySizing(modalContent) {
+                if (!modalContent) return;
+                const vw = document.documentElement.clientWidth || window.innerWidth;
+                const vh = document.documentElement.clientHeight || window.innerHeight;
+                const targetWidth = Math.min(800, Math.floor(vw * 0.94));
+                modalContent.style.setProperty('width', targetWidth + 'px', 'important');
+                modalContent.style.setProperty('max-width', targetWidth + 'px', 'important');
+                modalContent.style.setProperty('max-height', Math.floor(vh - 20) + 'px', 'important');
+                modalContent.style.setProperty('margin', '10px auto', 'important');
+                modalContent.style.setProperty('box-sizing', 'border-box', 'important');
+                modalContent.style.setProperty('overflow-y', 'auto', 'important');
+                modalContent.style.setProperty('left', '0', 'important');
+                modalContent.style.setProperty('right', '0', 'important');
+                modalContent.style.setProperty('position', 'relative', 'important');
+            }
+
+            function isVisible(modal) {
+                return window.getComputedStyle(modal).display !== 'none';
+            }
+
+            function watchModal(modal) {
+                if (isVisible(modal)) applySizing(modal.querySelector('.modal-content'));
+                const observer = new MutationObserver(() => {
+                    if (isVisible(modal)) applySizing(modal.querySelector('.modal-content'));
+                });
+                observer.observe(modal, { attributes: true, attributeFilter: ['style', 'class'] });
+            }
+
+            function init() {
+                document.querySelectorAll('.modal').forEach(watchModal);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+            window.addEventListener('resize', () => {
+                document.querySelectorAll('.modal').forEach(modal => {
+                    if (isVisible(modal)) applySizing(modal.querySelector('.modal-content'));
+                });
+            });
+
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => {
+                    document.querySelectorAll('.modal').forEach(modal => {
+                        if (isVisible(modal)) applySizing(modal.querySelector('.modal-content'));
+                    });
+                }, 200);
+            });
+        })();
+
+        // ============================================================
+        // تفعيل النسخ واللصق والقص في كل حقول الإدخال (نسخة واحدة موحدة)
+        // ============================================================
+        // ملحوظة: كان فيه أكتر من نسخة متكررة من نفس المعالجات بتشتغل في
+        // نفس الوقت على نفس الأحداث، وده كان ممكن يسبب تعارضات وسلوك غير
+        // متوقع للنسخ/اللصق في بعض الحقول أو بعض الأجهزة. هنا وحّدناها
+        // في نسخة واحدة نضيفة، بتدي الأولوية دايمًا للسلوك الافتراضي
+        // للمتصفح (الأسرع والأكثر توافقًا)، وبتتدخل يدويًا بس لو المتصفح
+        // منع اللصق/النسخ الطبيعي لأي سبب.
+        (function enableUniversalCopyPaste() {
+            function isEditableTarget(target) {
+                return !!target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+            }
+
+            // اللصق: لو المتصفح وفّر البيانات طبيعيًا (clipboardData) نسيبه
+            // يكمل عادي من غير أي تدخل. لو مافيش (حالات نادرة لبعض
+            // الإعدادات)، نجرب نجيب النص من Electron أو navigator.clipboard
+            // وندخله يدويًا.
+            document.addEventListener('paste', async function (e) {
                 try {
                     const target = e.target;
-                    let selText = '';
-                    if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
-                        selText = (target.value || '').substring(target.selectionStart || 0, target.selectionEnd || 0);
-                    }
-                    if (!selText) {
-                        selText = window.getSelection ? window.getSelection().toString() : '';
-                    }
-                    if (!selText) return;
+                    if (!isEditableTarget(target)) return;
 
-                    // أفضلية لكتابة الحافظة عبر Electron (إذا متاحة)
-                    if (window.electronAPI && window.electronAPI.writeClipboard) {
-                        try { await window.electronAPI.writeClipboard({ text: selText }); e.preventDefault(); return; } catch(_) { /* fallback */ }
+                    if (e.clipboardData && e.clipboardData.getData) {
+                        const nativeText = e.clipboardData.getData('text') || e.clipboardData.getData('text/plain');
+                        if (nativeText) return; // السلوك الطبيعي هيشتغل لوحده، مفيش داعي نتدخل
                     }
-
-                    if (e.clipboardData) {
-                        e.clipboardData.setData('text/plain', selText);
-                        e.preventDefault();
-                    }
-                } catch (ex) { /* ignore */ }
-            }, true);
-
-            // Paste: دعم عدة مصادر (event.clipboardData, Electron, navigator.clipboard)
-            document.addEventListener('paste', async function(e) {
-                try {
-                    const target = e.target;
-                    if (!target || !(target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
 
                     let text = '';
-                    if (e.clipboardData && e.clipboardData.getData) {
-                        text = e.clipboardData.getData('text') || e.clipboardData.getData('text/plain') || '';
-                    }
-
-                    if (!text && window.electronAPI && window.electronAPI.readClipboard) {
+                    if (window.electronAPI && window.electronAPI.readClipboard) {
                         try {
                             const r = await window.electronAPI.readClipboard();
                             if (r && r.success) text = r.text || '';
                         } catch (err) { /* ignore */ }
                     }
-
                     if (!text && navigator.clipboard && navigator.clipboard.readText) {
                         try { text = await navigator.clipboard.readText(); } catch (err) { /* ignore */ }
                     }
 
-                    if (text !== undefined && text !== null && text !== '') {
+                    if (text) {
                         if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
                             const start = target.selectionStart || 0;
                             const end = target.selectionEnd || 0;
@@ -8510,10 +9390,30 @@
                         e.preventDefault();
                     }
                 } catch (ex) { /* ignore */ }
-            }, false);
+            });
 
-            // Cut: حاول الكتابة عبر Electron ثم حذف النص محدد
-            document.addEventListener('cut', async function(e) {
+            // النسخ: نسيب السلوك الطبيعي يشتغل أولاً، ونستخدم Electron
+            // كطبقة إضافية بس لضمان وصول النص للحافظة في بيئة سطح المكتب
+            document.addEventListener('copy', async function (e) {
+                try {
+                    if (!window.electronAPI || !window.electronAPI.writeClipboard) return; // خليه على السلوك الطبيعي في المتصفح/الموبايل
+
+                    const target = e.target;
+                    let selText = '';
+                    if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+                        selText = (target.value || '').substring(target.selectionStart || 0, target.selectionEnd || 0);
+                    }
+                    if (!selText) {
+                        selText = window.getSelection ? window.getSelection().toString() : '';
+                    }
+                    if (!selText) return;
+
+                    await window.electronAPI.writeClipboard({ text: selText });
+                } catch (ex) { /* ignore */ }
+            });
+
+            // القص: بنسخ النص المحدد للحافظة ثم نحذفه من الحقل
+            document.addEventListener('cut', async function (e) {
                 try {
                     const target = e.target;
                     if (!target || !(target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
@@ -8524,22 +9424,17 @@
                     if (!selectedText) return;
 
                     if (window.electronAPI && window.electronAPI.writeClipboard) {
-                        try { await window.electronAPI.writeClipboard({ text: selectedText }); } catch(_) { /* ignore */ }
+                        try { await window.electronAPI.writeClipboard({ text: selectedText }); } catch (_) { /* ignore */ }
                     }
-
                     if (e.clipboardData) {
-                        e.clipboardData.setData('text/plain', selectedText);
+                        try { e.clipboardData.setData('text/plain', selectedText); } catch (_) { /* ignore */ }
                     }
 
-                    // إزالة النص المحدد
                     target.value = target.value.substring(0, start) + target.value.substring(end);
                     target.selectionStart = target.selectionEnd = start;
                     e.preventDefault();
                 } catch (ex) { /* ignore */ }
-            }, true);
-
-            // لا نعتمد على اختصارات مخصصة هنا — الاستماع للـ paste/copy/cut أعلاه كافٍ
-            // السماح بقائمة السياق الافتراضية (سيفعل النسخ/لصق بنمط النظام)
+            });
         })();
         
         // ========== حذف القضية ==========
