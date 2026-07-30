@@ -1,0 +1,53 @@
+{
+  "name": "case-manager-ahmed",
+  "productName": "نظام إدارة القضايا",
+  "version": "1.0.0",
+  "description": "نظام إدارة القضايا - المستشار محمود العوابدي",
+  "main": "main.js",
+  "author": "المستشار محمود العوابدي",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win",
+    "dist:dir": "electron-builder --win --dir"
+  },
+  "devDependencies": {
+    "electron": "^31.3.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "eg.stateslawsuits.casemanager.ahmed",
+    "productName": "نظام إدارة القضايا",
+    "files": [
+      "main.js",
+      "preload.js",
+      "app/**/*",
+      "build/icon.png",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "نظام إدارة القضايا",
+      "uninstallDisplayName": "نظام إدارة القضايا - المستشار محمود العوابدي",
+      "artifactName": "تثبيت-نظام-إدارة-القضايا-ahmed-${version}.${ext}"
+    }
+  }
+}
